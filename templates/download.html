@@ -1,0 +1,16 @@
+<!-- templates/download.html -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dosya İndir</title>
+</head>
+<body>
+    <h1>İndirilebilir Dosyalar</h1>
+    <ul>
+        {% for file in files %}
+            <li><a href="{{ url_for('download_file', filename=file) }}">{{ file }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
