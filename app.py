@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 from flask import Flask, render_template, jsonify, send_file
 import os
@@ -55,6 +56,7 @@ def get_deprem_data():
     url = "https://deprem.afad.gov.tr/last-earthquakes.html"
     try:
         response = requests.get(url, timeout=10)
+        response.encoding = 'utf-8'  # Türkçe karakter desteği için bunu ekle
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table', class_='content-table')
         rows = table.find_all('tr')[1:]
@@ -64,20 +66,20 @@ def get_deprem_data():
             cols = row.find_all('td')
             if len(cols) < 7:
                 continue
-                
+            ml=float(cols[5].text.strip())    
             detay_button = row.find('a', class_='routeButton')
             deprem_id = detay_button['href'].split('/')[-1] if detay_button else None
-            
-            parsed_data.append({
-                "Tarih": cols[0].text.strip(),
-                "Enlem": float(cols[1].text.strip()),
-                "Boylam": float(cols[2].text.strip()),
-                "Derinlik": float(cols[3].text.strip()),
-                "ML": float(cols[5].text.strip()),
-                "Yer": cols[6].text.strip(),
-                "ID": deprem_id,
-                "Harita": f"https://www.openstreetmap.org/?mlat={cols[1].text.strip()}&mlon={cols[2].text.strip()}&zoom=9"
-            })
+            if ml >=2:
+                parsed_data.append({
+                    "Tarih": cols[0].text.strip(),
+                    "Enlem": float(cols[1].text.strip()),
+                    "Boylam": float(cols[2].text.strip()),
+                    "Derinlik": float(cols[3].text.strip()),
+                    "ML": ml,
+                    "Yer": cols[6].text.strip(),
+                    "ID": deprem_id,
+                    "Harita": f"https://www.openstreetmap.org/?mlat={cols[1].text.strip()}&mlon={cols[2].text.strip()}&zoom=9"
+                })
         return parsed_data
     except Exception as e:
         print(f"Veri çekme hatası: {e}")
@@ -97,7 +99,7 @@ def arkaplan_guncelle():
             # Yeni deprem bildirimi
             for veri in veriler:
                 if veri["ML"] >= 3.5 and veri["ID"] not in onceki_ids:
-                    mesaj = f"⚠️ {veri['Yer']} - {veri['ML']} büyüklüğünde deprem!\n{veri['Harita']}"
+                    mesaj = f"⚠️ AWS {veri['Yer']} - {veri['ML']} büyüklüğünde deprem!\n{veri['Harita']}"
                     sms_gonder(mesaj)
                     veri_kaydet(veri)
             
@@ -119,9 +121,14 @@ def deprem_verileri():
         veriler = json.load(f)
     return jsonify(veriler)
 
+@app.route("/download")
+def download_page():
+    files = os.listdir("static/download")  # static klasöründeki dosyaları listele
+    return render_template("download.html", files=files)
+
 @app.route("/download/<filename>")
 def download_file(filename):
-    return send_file(f"static/{filename}", as_attachment=True)
+    return send_file(f"static/download/{filename}", as_attachment=True)
 
 # --- Uygulama Başlatma ---
 if __name__ == "__main__":
