@@ -99,7 +99,7 @@ def arkaplan_guncelle():
             # Yeni deprem bildirimi
             for veri in veriler:
                 if veri["ML"] >= 3.5 and veri["ID"] not in onceki_ids:
-                    mesaj = f"⚠️ AWS {veri['Yer']} - {veri['ML']} büyüklüğünde deprem!\n{veri['Harita']}"
+                    mesaj = f"⚠️ Github\n {veri['Yer']} - {veri['ML']} büyüklüğünde deprem!\n{veri['Harita']}"
                     sms_gonder(mesaj)
                     veri_kaydet(veri)
             
