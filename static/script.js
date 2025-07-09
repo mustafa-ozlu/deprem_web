@@ -30,7 +30,7 @@ fetch("/deprem")
       const magnitude = parseFloat(veri.ML);
       let icon = defaultIcon;
       
-      if (magnitude > 5) {
+      if (magnitude >= 5) {
         icon = redIcon;
         if ("Notification" in window && Notification.permission === "granted") {
           new Notification("⚠️ Şiddetli Deprem", {
