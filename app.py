@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 from threading import Thread
 from dotenv import load_dotenv
 
-app = Flask(__name__)
 load_dotenv()
 
 # --- deprem.py'den taşınan fonksiyonlar ---
@@ -107,6 +106,15 @@ def arkaplan_guncelle():
         except Exception as e:
             print(f"Güncelleme hatası: {e}")
             time.sleep(30)
+app = Flask(__name__)
+
+def start_background_thread_once():
+    if not hasattr(app, "background_thread_started"):
+        app.background_thread_started = True
+        Thread(target=arkaplan_guncelle, daemon=True).start()
+        print("Arkaplan güncelleme başlatıldı", flush=True)
+
+start_background_thread_once()
 
 # --- Flask Route'ları ---
 @app.route("/")
