@@ -16,8 +16,8 @@ def sms_gonder(mesaj):
     CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     params = {"chat_id": CHAT_ID, "text": mesaj}
-    requests.get(url, params=params)
-    print(mesaj, flush=True)
+    response = requests.get(url, params=params)
+    print(response.json(), flush=True)
 
 def onceki_veri_yukle():
     try:
