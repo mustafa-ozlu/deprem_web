@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from dotenv import load_dotenv
 import json
 from flask import Flask, render_template, jsonify, send_file
 import os
@@ -7,8 +8,6 @@ from datetime import datetime
 import time
 from bs4 import BeautifulSoup
 from threading import Thread
-from dotenv import load_dotenv
-
 load_dotenv()
 
 def sms_gonder(mesaj):
