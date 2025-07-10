@@ -97,7 +97,7 @@ def arkaplan_guncelle():
             # Yeni deprem bildirimi
             for veri in veriler:
                 if veri["ML"] >= 3.5 and veri["ID"] not in onceki_ids:
-                    mesaj = f"⚠️ D E P R E M !\nYeri: {veri['Yer']}\nŞiddeti: {veri['ML']} \nZamanı: {veri['Tarih']}\nHarita:{veri['Harita']}\n"
+                    mesaj = f"⚠️ D E P R E M !\nYeri : {veri['Yer']}\nŞiddeti : {veri['ML']} \nZamanı : {veri['Tarih']}\nHarita :{veri['Harita']}\n"
                     sms_gonder(mesaj)
                     veri_kaydet(veri)
             print("Son Veri: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"),flush=True)
