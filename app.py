@@ -3,7 +3,7 @@ import json
 from flask import Flask, render_template, jsonify, send_file
 import os
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
 from bs4 import BeautifulSoup
 from threading import Thread
@@ -11,13 +11,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# --- deprem.py'den taşınan fonksiyonlar ---
 def sms_gonder(mesaj):
     TOKEN = os.getenv("TELEGRAM_TOKEN")
     CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     params = {"chat_id": CHAT_ID, "text": mesaj}
     requests.get(url, params=params)
+    print(mesaj, flush=True)
 
 def onceki_veri_yukle():
     try:
@@ -43,7 +43,7 @@ def veri_kaydet(veri):
             "Tarih": veri['Tarih'],
             "Yer": veri['Yer'],
             "ML": veri['ML'],
-            "zaman": datetime.now().isoformat()
+            "zaman": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         })
         
         with open("son_sms.json", "w", encoding="utf-8") as f:
@@ -98,10 +98,10 @@ def arkaplan_guncelle():
             # Yeni deprem bildirimi
             for veri in veriler:
                 if veri["ML"] >= 3.5 and veri["ID"] not in onceki_ids:
-                    mesaj = f"⚠️ Github\n {veri['Yer']} - {veri['ML']} büyüklüğünde deprem!\n{veri['Harita']}"
+                    mesaj = f"⚠️ {veri['Yer']} - {veri['ML']} büyüklüğünde deprem!\nTarih: {veri['Tarih']}\n{veri['Harita']}"
                     sms_gonder(mesaj)
                     veri_kaydet(veri)
-            
+            print("Son Veri: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"),flush=True)
             time.sleep(60)  # 1 dakikada bir güncelle
         except Exception as e:
             print(f"Güncelleme hatası: {e}")
@@ -140,7 +140,5 @@ def download_file(filename):
 
 # --- Uygulama Başlatma ---
 if __name__ == "__main__":
-    # Arka plan thread'i başlat
-    Thread(target=arkaplan_guncelle, daemon=True).start()
     # Flask'ı çalıştır
     app.run(debug=False, host="0.0.0.0", port=5000)
